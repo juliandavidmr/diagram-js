@@ -69,12 +69,18 @@ popupMenu.registerProvider('myMenuID', {
       {
         id: 'entry-1',
         label: 'Option A',
-        action: 'alert("I have been clicked!")'
+        action: function (params) {
+          alert("I have been clicked!");
+          eventBus.fire('contextPad.close');
+        }
       },
       {
         id: 'entry-2',
         label: 'Option B',
-        action: 'alert("I have been clicked!")'
+        action: function (params) {
+          alert("I have been clicked 2!");
+          eventBus.fire('contextPad.close');
+        }
       }
     ];
   }
@@ -83,6 +89,7 @@ popupMenu.registerProvider('myMenuID', {
 // Open popup menu with clic right
 eventBus.on('element.contextmenu', function (event) {
   event.preventDefault();
+  event.stopPropagation();
 
   console.log('Context pad', event);
 
@@ -94,6 +101,11 @@ eventBus.on('element.contextmenu', function (event) {
     y: originalEvent.pageY,
     cursor: 'pointer'
   });
+});
+
+eventBus.on('element.out', function (event) {
+  // console.log('Out', event);
+  // eventBus.fire('contextPad.close');
 });
 
 // override default styles
