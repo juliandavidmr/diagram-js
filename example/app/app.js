@@ -13,6 +13,7 @@ import ResizeModule from '../../lib/features/resize';
 import RulesModule from '../../lib/features/rules';
 import SelectionModule from '../../lib/features/selection';
 import ZoomScrollModule from '../../lib/navigation/zoomscroll';
+import PopPupModule from '../../lib/features/popup-menu';
 
 import ExampleContextPadProvider from './ExampleContextPadProvider';
 import ExamplePaletteProvider from './ExamplePaletteProvider';
@@ -49,14 +50,51 @@ var diagram = new Diagram({
     ResizeModule,
     RulesModule,
     SelectionModule,
-    ZoomScrollModule
+    ZoomScrollModule,
+    PopPupModule
   ]
 });
 
 var canvas = diagram.get('canvas'),
     defaultRenderer = diagram.get('defaultRenderer'),
     elementFactory = diagram.get('elementFactory'),
-    selection = diagram.get('selection');
+    selection = diagram.get('selection'),
+    eventBus = diagram.get('eventBus'),
+    popupMenu = diagram.get('popupMenu');
+
+// create popup menu
+popupMenu.registerProvider('myMenuID', {
+  getEntries: function(element) {
+    return [
+      {
+        id: 'entry-1',
+        label: 'Option A',
+        action: 'alert("I have been clicked!")'
+      },
+      {
+        id: 'entry-2',
+        label: 'Option B',
+        action: 'alert("I have been clicked!")'
+      }
+    ];
+  }
+});
+
+// Open popup menu with clic right
+eventBus.on('element.contextmenu', function (event) {
+  event.preventDefault();
+
+  console.log('Context pad', event);
+
+  var element = event.element,
+      originalEvent = event.originalEvent;
+
+  popupMenu.open(element, 'myMenuID', {
+    x: originalEvent.pageX,
+    y: originalEvent.pageY,
+    cursor: 'pointer'
+  });
+});
 
 // override default styles
 defaultRenderer.CONNECTION_STYLE = { fill: 'none', strokeWidth: 5, stroke: '#000' };
